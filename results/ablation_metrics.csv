@@ -1,6 +1,8 @@
-ablation,combined_stress_mean_success,ci95_success,interpretation
-full_proposed_branch_mechanism,0.6650,0.0240,all components
-minus_branch_atlas,0.5519,0.0137,removes explicit unrealized futures
-minus_tail_risk_objective,0.5824,0.0141,uses mean predicted value only
-minus_diagnostic_probe,0.6150,0.0130,does not actively test ambiguous physical modes
-minus_failure_memory,0.6198,0.0137,does not reuse repaired beliefs
+ablation,mean_mean_success,ci95_mean_success,mean_mean_physical_violation,ci95_mean_physical_violation,mean_mean_human_burden,ci95_mean_human_burden,mean_mean_intent_error,ci95_mean_intent_error,mean_mean_overpromise,ci95_mean_overpromise,mean_mean_negotiation_rounds,ci95_mean_negotiation_rounds,mean_mean_total_cost,ci95_mean_total_cost,groups,interpretation
+clarification_only,0.5665,0.0083,0.1253,0.0043,0.3737,0.0053,0.3190,0.0025,0.1298,0.0055,1.4944,0.0044,0.4160,0.0004,7,clarifies ambiguity but does not negotiate capability/roles
+full_affordance_negotiation,0.6241,0.0058,0.1066,0.0047,0.2100,0.0042,0.3305,0.0054,0.0927,0.0021,1.1690,0.0027,0.3215,0.0005,7,all components
+minus_burden_aware_query_value,0.6045,0.0110,0.1087,0.0042,0.3518,0.0046,0.3077,0.0049,0.0916,0.0039,1.5540,0.0062,0.3880,0.0011,7,asks whenever uncertain without burden modeling
+minus_capability_map,0.5613,0.0056,0.1910,0.0058,0.1897,0.0065,0.3414,0.0053,0.2754,0.0049,1.0804,0.0040,0.4138,0.0007,7,removes robot capability map
+minus_intent_belief,0.5547,0.0086,0.1191,0.0043,0.1803,0.0041,0.3970,0.0077,0.1193,0.0038,1.0595,0.0032,0.3406,0.0010,7,removes human-intent belief update
+minus_overpromise_risk,0.5963,0.0062,0.2019,0.0045,0.1666,0.0060,0.3372,0.0033,0.3019,0.0055,1.0789,0.0050,0.4205,0.0005,7,does not penalize infeasible promises
+minus_role_negotiation,0.5539,0.0076,0.1345,0.0035,0.2034,0.0045,0.3629,0.0057,0.1565,0.0023,0.9857,0.0054,0.3521,0.0008,7,uses fixed role assignments

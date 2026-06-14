@@ -1,18 +1,17 @@
 # Submission Version Log
 
-## v1 - Generated Draft
-- Original continuation-batch generated paper and toy single-seed experiment.
+## v1
 
-## v2 - Submission Hardening
-- Added hostile reviewer attack log and response docs.
-- Replaced the toy experiment with seven-seed metrics, stronger baselines, ablations, stress tests, and negative cases.
-- Narrowed claims to synthetic diagnostic evidence.
-- Recompiled canonical PDF at `C:/Users/wangz/Downloads/102.pdf`.
-- Terminal decision: WORKSHOP_ONLY.
+Generated draft and repository scaffold.
 
-## v3 - ICLR Main Gate Archive
-- Applied the stricter ICLR-main-conference standard.
-- Re-read local paper, docs, experiments, prior-work artifacts, PDF state, and repo state.
-- Determined that missing real-robot/high-fidelity evidence, template-generated experiments, and unresolved novelty threats are not recoverable from local artifacts.
-- Recompiled the canonical PDF with `Submission-hardening version: v3`.
-- Terminal decision: KILL_ARCHIVE.
+## v2
+
+Initial hardening pass.
+
+## v3
+
+ICLR-main gate archive. Decision: KILL_ARCHIVE because evidence was synthetic/template-only.
+
+## v4
+
+Paper-specific collaborative-affordance evidence rebuild. Added deterministic NumPy benchmark, strong baselines, ablations, stress sweep, pairwise seed tests, generated figures, LaTeX tables, failure cases, rewritten docs, and a new manuscript. Decision remains KILL_ARCHIVE because the proposed method does not decisively beat `shared_autonomy_pomdp` and fails the ablation gate.

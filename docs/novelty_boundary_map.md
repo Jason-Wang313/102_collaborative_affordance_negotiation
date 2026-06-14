@@ -1,13 +1,22 @@
 # Novelty Boundary Map
 
 ## Crowded Territory
-- Bigger data/model scaling.
-- New benchmark only.
-- Generic active learning or uncertainty.
-- Combining a planner with a learned policy without a new state/action object.
+
+- Shared autonomy.
+- Human intent inference.
+- Capability maps.
+- Language-conditioned affordance planning.
+- Uncertainty-based clarification.
+- Physical human-robot collaboration and co-manipulation.
 
 ## Claimed Boundary
-Collaborative affordance negotiation keeps action-critical alternatives explicit until a physical observation collapses them.
 
-## What Would Falsify The Claim
-If observed-only baselines match the adverse-mode coverage and closed-loop success of the proposed branch-aware mechanism, the paper should be revised or killed.
+The intended boundary was joint negotiation over human intent, robot capability, role assignment, query value, over-promise risk, and human burden.
+
+## Current Evidence
+
+The boundary is not strong enough. The full method improves safety and over-promise but does not decisively beat `shared_autonomy_pomdp` on task success, and an ablation nearly matches it.
+
+## Terminal Novelty Decision
+
+KILL_ARCHIVE until a substantially stronger mechanism and real HRI validation exist.

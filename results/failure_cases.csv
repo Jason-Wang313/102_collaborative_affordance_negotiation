@@ -1,0 +1,9 @@
+case_id,task,family,proposed_success,strongest_baseline,baseline_success,success_gap,proposed_physical_violation,proposed_human_burden,lesson
+1,co_carry_doorway,ergonomic_constraint,0.5952,shared_autonomy_pomdp,0.6156,-0.0204,0.1446,0.2228,negotiation is dominated when direct shared-autonomy inference resolves the role faster than explicit bargaining
+2,tool_use_handoff,conflicting_safety_preference,0.6276,shared_autonomy_pomdp,0.6463,-0.0187,0.1429,0.2313,negotiation is dominated when direct shared-autonomy inference resolves the role faster than explicit bargaining
+3,co_carry_doorway,role_switch_request,0.6105,shared_autonomy_pomdp,0.6173,-0.0068,0.1105,0.2126,negotiation is dominated when direct shared-autonomy inference resolves the role faster than explicit bargaining
+4,handover_grip_choice,role_switch_request,0.6241,shared_autonomy_pomdp,0.6310,-0.0068,0.1173,0.2160,negotiation is dominated when direct shared-autonomy inference resolves the role faster than explicit bargaining
+5,co_carry_doorway,occluded_human_goal,0.5884,shared_autonomy_pomdp,0.5952,-0.0068,0.0935,0.2058,negotiation is dominated when direct shared-autonomy inference resolves the role faster than explicit bargaining
+6,assisted_assembly,asymmetric_reach,0.6310,shared_autonomy_pomdp,0.6327,-0.0017,0.1156,0.2058,negotiation is dominated when direct shared-autonomy inference resolves the role faster than explicit bargaining
+7,tool_use_handoff,ergonomic_constraint,0.6139,shared_autonomy_pomdp,0.6139,0.0000,0.1412,0.1956,negotiation is dominated when direct shared-autonomy inference resolves the role faster than explicit bargaining
+8,tool_use_handoff,load_sharing_mismatch,0.6190,shared_autonomy_pomdp,0.6190,0.0000,0.1224,0.1820,negotiation is dominated when direct shared-autonomy inference resolves the role faster than explicit bargaining

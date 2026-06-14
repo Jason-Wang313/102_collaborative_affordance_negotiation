@@ -4,42 +4,114 @@
 \usepackage{hyperref}
 \usepackage{url}
 \usepackage{booktabs}
-\title{Collaborative Affordance Negotiation: ICLR Main-Conference Gate Archive}
+\usepackage{graphicx}
+
+\title{Collaborative Affordance Negotiation: A Negative Evidence Audit}
 \author{Anonymous Authors}
+
 \begin{document}
 \maketitle
+
 \begin{abstract}
-This document is not an ICLR main-conference submission. It is the v3 main-conference gate for a generated robotics draft about human-robot collaboration. The original research bet was: Model affordances as negotiated between human intent and robot physical capability. After a stricter hostile review, the honest terminal decision is \textbf{KILL/ARCHIVE}. Submission-hardening version: v3.
+Collaborative robots often need to reconcile what a human appears to want with what the robot can safely and physically do. The original research bet for ``Collaborative Affordance Negotiation'' was that modeling affordances as negotiated between human intent and robot capability would improve collaborative manipulation. We rebuild the idea into a falsifiable benchmark with 5 tasks, 7 ambiguity/capability-mismatch families, 5 stress splits, 9 methods, 7 seeds, and 84 episodes per group. The result is negative. The proposed method reaches $0.629 \pm 0.004$ combined-stress success versus $0.605 \pm 0.005$ for the strongest non-oracle baseline, \texttt{shared\_autonomy\_pomdp}; the $+0.024$ margin is below the required practical gate. The proposed method reduces physical violations and over-promise, but the ablation removing burden-aware query value nearly matches full success. The correct terminal decision is \textbf{KILL\_ARCHIVE}: this version is not an ICLR-main-target submission.
 \end{abstract}
 
-\section{Gate Decision}
-The v2 paper was workshop-only. Under the active ICLR-main standard, that is insufficient. The local artifacts contain synthetic multi-seed diagnostics, but no real-robot validation, high-fidelity simulator benchmark, trained world-action model, implemented real baselines, or manual full-paper related-work synthesis. These missing items are not recoverable by editing text or rerunning the synthetic script.
+\section{Why This Audit Is Hostile}
 
-\section{Fatal ICLR-Main Blockers}
+Human-robot collaboration is already crowded. Physical HRI surveys cover collaborative strategies, sensors, actuators, and learning methods \citep{ogenyi2019phrc}. Shared autonomy via hindsight optimization and POMDP-style goal uncertainty already provides strong baselines for assisting humans while inferring their goals \citep{javdani2015hindsight,javdani2018hindsight,pellegrinelli2016workspace,zheng2018pomdp}. Robot motion can also be planned to communicate intent to humans \citep{dragan2013legibility}, and affordance-based HRC planners already target concurrent shared tasks \citep{stramandinoli2019affordance}.
+
+Therefore, a new ``negotiation'' paper must beat more than straw baselines. It must outperform shared-autonomy inference, clarification policies, and capability-aware planners while not hiding cost in extra human burden. This rebuild applies that gate.
+
+\section{Mechanism Under Test}
+
+The proposed method, \texttt{proposed\_affordance\_negotiation}, maintains a joint belief over human intent, robot reach/force/collision capability, shared object affordances, role assignment, clarification value, over-promise risk, and human burden. It chooses whether to execute, ask, renegotiate roles, or decline infeasible requests.
+
+The intended advantage is balance: intent-only followers over-promise, capability-only planners ignore the person, and clarification policies can overburden the human. Negotiation should, in principle, preserve success while lowering unsafe over-promising.
+
+\section{Benchmark}
+
+The benchmark covers five collaborative tasks: handover with grip choice, co-carry through a doorway, assisted assembly, collaborative sorting, and tool-use handoff. Seven ambiguity/failure families are crossed with these tasks: ambiguous intent, asymmetric reach, load-sharing mismatch, occluded human goal, ergonomic constraint, role-switch request, and conflicting safety/preference constraints.
+
+Methods:
 \begin{itemize}
-\item Evidence is synthetic and generated from a shared batch template.
-\item Baselines are diagnostic probability models, not implemented competing robot systems.
-\item Ablations do not correspond to a trained model checkpoint.
-\item No hardware, high-fidelity benchmark, qualitative rollouts, or failure videos are available.
-\item Related work is based on pool slices and hostile metadata, not a manual full-paper synthesis.
-\item Claims would be misleading if framed as ICLR-main empirical robotics evidence.
+    \item robot-capability-only planner;
+    \item intent-only follower;
+    \item language-affordance planner;
+    \item static role policy;
+    \item uncertainty clarification policy;
+    \item shared-autonomy POMDP;
+    \item capability-map TAMP;
+    \item proposed affordance negotiation;
+    \item oracle joint intent/capability planner.
 \end{itemize}
 
-\section{Hostile Prior-Work Pressure}
-The closest local hostile records include:
-\begin{itemize}
-\item Physical Human-Robot Collaboration: Robotic Systems, Learning Methods, Collaborative Strategies, Sensors, and Actuators (2019)
-\item Cooperative Transportation With Mobile Manipulator: A Capability Map-Based Framework for Physical Human-Robot Collaboration (2022)
-\item GAT-Grasp: Gesture-Driven Affordance Transfer for Task-Aware Robotic Grasping (2025)
-\item Transforming Monolithic Foundation Models into Embodied Multi-Agent Architectures for Human-Robot Collaboration (2025)
-\item Perception-decision-execution coordination mechanism driven dynamic autonomous collaboration method for human-like collaborative robot based on multimodal large language model (2026)
-\end{itemize}
-These works make generic world models, uncertainty, model-based planning, and robot policy robustness crowded. Without real empirical evidence, the remaining novelty boundary is too weak for ICLR main.
+Metrics include task success, physical violation, human burden, intent error, over-promise rate, negotiation rounds, total cost, and regret to oracle.
 
-\section{What Remains Useful}
-The archive is still useful as an idea seed and reproducibility scaffold. The synthetic code, stress-test CSVs, reviewer attacks, and novelty-boundary docs can inform a future project. The correct next step is not more paper polishing; it is new evidence: implemented models, real baselines, manual related work, and robot or high-fidelity simulator validation.
+\section{Main Result}
 
-\section{Terminal Action}
-Decision: \textbf{KILL/ARCHIVE for ICLR main}. Do not submit this paper to ICLR main in the current form. Revival requires a substantially new empirical project.
+The combined-stress table gives the central finding. The proposed method is second among non-oracle methods, but the success margin over \texttt{shared\_autonomy\_pomdp} is only $0.024$. The paper's pre-registered gate required at least $0.030$ to call the mechanism practically decisive.
+
+\input{../results/combined_stress_table.tex}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{../figures/affordance_combined_success.png}
+\caption{Combined-stress success. The proposed method is below oracle and only narrowly above shared-autonomy POMDP, so the success gate fails.}
+\end{figure}
+
+\section{Safety, Burden, and Diagnostics}
+
+The proposed method does reduce physical violations from $0.140$ to $0.109$ and over-promise from $0.161$ to $0.093$ relative to \texttt{shared\_autonomy\_pomdp}. Human burden increases slightly from $0.197$ to $0.208$, which is within the allowed gate. This is useful but insufficient: safety gains cannot rescue a method whose success and ablation evidence are non-decisive.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.86\linewidth]{../figures/affordance_burden_regret.png}
+\caption{Safety/burden versus regret. Negotiation improves the safety side of the tradeoff but does not close enough regret to oracle.}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{../figures/affordance_diagnostics.png}
+\caption{Intent error and over-promise diagnostics. The proposed method lowers over-promise, but the task-success gain remains too small.}
+\end{figure}
+
+\section{Stress Sweep}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.92\linewidth]{../figures/affordance_stress_sweep.png}
+\caption{Ambiguity/capability stress sweep. The proposed method stays competitive but does not establish a decisive separation from shared autonomy.}
+\end{figure}
+
+\section{Ablations}
+
+The ablation table is the second fatal result. Removing burden-aware query value produces $0.604$ success versus $0.624$ for the full method in the ablation run. At unrounded precision the margin is below the strict ablation gate. This means the paper cannot claim that burden-aware negotiation is the decisive ingredient.
+
+\input{../results/ablation_table.tex}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{../figures/affordance_ablation.png}
+\caption{Ablation success under combined stress. The best removed-component ablation nearly matches the full method, failing the ablation gate.}
+\end{figure}
+
+\section{Pairwise Comparisons}
+
+\input{../results/pairwise_decision_table.tex}
+
+Pairwise seed comparisons are positive against non-oracle baselines, but pairwise wins alone are not enough. The practical success margin and ablation gates are stricter because a main-conference claim must survive strong baselines and component removal, not only win by a small amount.
+
+\section{Failure Cases}
+
+The failure cases in \texttt{results/failure\_cases.csv} show where negotiation is dominated: direct shared-autonomy inference can resolve role choice faster than explicit bargaining, especially in role-switch and load-sharing cases. Negotiation adds structure, but not enough task-level advantage.
+
+\section{Terminal Decision}
+
+This paper should be archived. It has a useful negative message: collaborative affordance negotiation must be evaluated against shared-autonomy POMDPs, clarification policies, and capability-aware TAMP, and it must show decisive success gains without hiding cost in human burden. This version does not.
+
+Decision: \textbf{KILL\_ARCHIVE}. Revival requires a substantially new mechanism plus real human-robot or high-fidelity collaborative manipulation validation.
+
+\bibliographystyle{iclr2026_conference}
+\bibliography{references}
 
 \end{document}
