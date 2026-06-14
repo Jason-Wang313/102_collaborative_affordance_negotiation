@@ -1,18 +1,28 @@
 # 102 Collaborative Affordance Negotiation
 
-Submission-hardening version: v3
+Submission-hardening version: v4
 
-Terminal decision: KILL_ARCHIVE for ICLR main conference.
+Terminal decision: KILL_ARCHIVE for ICLR main.
 
-The repository is retained as an archive of the generated idea, hostile review, synthetic stress-test scaffold, and reproducibility files. It is not an ICLR main-conference-ready robotics paper because it lacks real-robot/high-fidelity evidence and implemented learned baselines.
+Paper 102 was rebuilt from a template archive into a paper-specific collaborative-affordance benchmark. The evidence is useful but negative: explicit affordance negotiation improves over simple capability-only, intent-only, language-affordance, clarification-only, and capability-map baselines, but it does not clear the decisive gate against the strongest non-oracle baseline, `shared_autonomy_pomdp`.
 
-## Reproduce Synthetic Scaffold
+## Key Evidence
+
+- Benchmark design: 5 tasks x 7 collaboration ambiguity families x 5 splits x 9 methods.
+- Seeds: 7 independent seeds, 84 episodes per method/task/family/split/seed group.
+- Strongest non-oracle baseline: `shared_autonomy_pomdp`.
+- Combined stress: proposed success `0.629 +/- 0.004`; strongest baseline success `0.605 +/- 0.005`.
+- Success margin: `+0.024`, below the required `+0.030` practical margin.
+- Ablation gate failed: full method success `0.624`; `minus_burden_aware_query_value` success `0.604`, margin `+0.020` but below the strict gate after rounding/seed aggregation.
+- Proposed reduces violations and over-promise, but the task-success gain is not decisive enough for a main-conference trajectory.
+
+## Reproduce Evidence
 
 ```powershell
 python src\run_experiment.py
 ```
 
-## Rebuild Archive PDF
+## Rebuild PDF
 
 ```powershell
 cd paper
@@ -21,3 +31,7 @@ pdflatex -interaction=nonstopmode -halt-on-error main.tex
 ```
 
 Canonical local PDF: `C:/Users/wangz/Downloads/102.pdf`
+
+## Honest Limitation
+
+This repo should be retained as a negative empirical audit. Reviving the idea would require real human-robot studies or high-fidelity collaborative manipulation benchmarks and a method that decisively beats shared-autonomy baselines.

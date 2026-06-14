@@ -1,7 +1,7 @@
 # Novelty Decision
 
-Chosen thesis: Collaborative Affordance Negotiation turns the seed bet into a mechanism: Model affordances as negotiated between human intent and robot physical capability.
+Decision: not enough for ICLR main.
 
-New central mechanism: Collaborative affordance negotiation keeps action-critical alternatives explicit until a physical observation collapses them.
+Collaborative affordance negotiation is an interesting framing, but the v4 evidence does not establish a decisive mechanism beyond strong shared-autonomy and clarification baselines.
 
-Decision: proceed as a revise/workshop-strength ICLR-style draft with synthetic but runnable evidence.
+Terminal action: KILL_ARCHIVE.

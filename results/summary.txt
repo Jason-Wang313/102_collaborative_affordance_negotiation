@@ -1,16 +1,49 @@
-Submission-hardening experiment for paper 102 collaborative_affordance_negotiation
-Seven seeds, 600 episodes per seed, strong baselines, ablations, stress sweep, and negative cases.
-observed_only_behavior_clone hidden_mode_shift mean_success=0.4179 ci95=0.0160 tail=0.5821
-observed_only_behavior_clone combined_stress mean_success=0.3393 ci95=0.0163 tail=0.6607
-data_augmentation_wam hidden_mode_shift mean_success=0.4874 ci95=0.0217 tail=0.5126
-data_augmentation_wam combined_stress mean_success=0.4150 ci95=0.0202 tail=0.5850
-scalar_uncertainty_planner hidden_mode_shift mean_success=0.5586 ci95=0.0116 tail=0.4414
-scalar_uncertainty_planner combined_stress mean_success=0.5036 ci95=0.0093 tail=0.4964
-ensemble_disagreement_planner hidden_mode_shift mean_success=0.6017 ci95=0.0121 tail=0.3983
-ensemble_disagreement_planner combined_stress mean_success=0.5450 ci95=0.0103 tail=0.4550
-conformal_risk_filter hidden_mode_shift mean_success=0.6091 ci95=0.0248 tail=0.3909
-conformal_risk_filter combined_stress mean_success=0.5574 ci95=0.0159 tail=0.4426
-proposed_branch_mechanism hidden_mode_shift mean_success=0.6819 ci95=0.0091 tail=0.3181
-proposed_branch_mechanism combined_stress mean_success=0.6586 ci95=0.0122 tail=0.3414
-oracle_branch_upper_bound hidden_mode_shift mean_success=0.7541 ci95=0.0130 tail=0.2459
-oracle_branch_upper_bound combined_stress mean_success=0.7417 ci95=0.0125 tail=0.2583
+Paper 102 collaborative_affordance_negotiation evidence rebuild
+Design: 5 tasks x 7 collaboration ambiguity families x 5 splits x 9 methods, 7 seeds, 84 episodes/group.
+Terminal decision: KILL_ARCHIVE
+Rationale: local evidence fails the decisive success, safety/burden, diagnostic, pairwise, or ablation gate
+
+Combined-stress ranking:
+oracle_joint_intent_capability_planner: success=0.760 +/- 0.004, viol=0.053, burden=0.201, intent_err=0.262, overpromise=0.010, rounds=1.513, regret=0.000
+proposed_affordance_negotiation: success=0.629 +/- 0.004, viol=0.109, burden=0.208, intent_err=0.330, overpromise=0.093, rounds=1.172, regret=0.131
+shared_autonomy_pomdp: success=0.605 +/- 0.005, viol=0.140, burden=0.197, intent_err=0.343, overpromise=0.161, rounds=1.046, regret=0.155
+uncertainty_clarification_policy: success=0.568 +/- 0.008, viol=0.132, burden=0.334, intent_err=0.321, overpromise=0.142, rounds=1.426, regret=0.192
+capability_map_tamp: success=0.555 +/- 0.004, viol=0.092, burden=0.123, intent_err=0.422, overpromise=0.067, rounds=0.724, regret=0.205
+language_affordance_planner: success=0.495 +/- 0.006, viol=0.232, burden=0.084, intent_err=0.401, overpromise=0.352, rounds=0.554, regret=0.266
+static_role_policy: success=0.464 +/- 0.005, viol=0.185, burden=0.071, intent_err=0.453, overpromise=0.258, rounds=0.487, regret=0.297
+intent_only_follower: success=0.460 +/- 0.007, viol=0.304, burden=0.054, intent_err=0.394, overpromise=0.517, rounds=0.431, regret=0.300
+robot_capability_only_planner: success=0.437 +/- 0.009, viol=0.151, burden=0.057, intent_err=0.489, overpromise=0.181, rounds=0.395, regret=0.323
+
+Gate outcomes:
+success_gate: False
+safety_burden_gate: True
+diagnostic_gate: True
+pairwise_gate: True
+ablation_gate: False
+success_margin_vs_strongest: 0.023906705539358697
+physical_violation_delta_vs_strongest: -0.030417881438289607
+human_burden_delta_vs_strongest: 0.01015549076773567
+intent_error_delta_vs_strongest: -0.013459669582118583
+overpromise_delta_vs_strongest: -0.06812439261418855
+ablation_margin_vs_best_removed_component: 0.019630709426627813
+strongest_non_oracle_baseline: shared_autonomy_pomdp
+best_removed_component: minus_burden_aware_query_value
+
+Pairwise proposed comparisons:
+capability_map_tamp: diff=0.074 +/- 0.007, wins=7/7, decision=proposed_better
+intent_only_follower: diff=0.169 +/- 0.011, wins=7/7, decision=proposed_better
+language_affordance_planner: diff=0.134 +/- 0.006, wins=7/7, decision=proposed_better
+oracle_joint_intent_capability_planner: diff=-0.131 +/- 0.006, wins=0/7, decision=not_decisive
+robot_capability_only_planner: diff=0.191 +/- 0.012, wins=7/7, decision=proposed_better
+shared_autonomy_pomdp: diff=0.024 +/- 0.009, wins=7/7, decision=proposed_better
+static_role_policy: diff=0.165 +/- 0.008, wins=7/7, decision=proposed_better
+uncertainty_clarification_policy: diff=0.061 +/- 0.011, wins=7/7, decision=proposed_better
+
+Ablations:
+full_affordance_negotiation: success=0.624 +/- 0.006, viol=0.107, burden=0.210, note=all components
+minus_burden_aware_query_value: success=0.604 +/- 0.011, viol=0.109, burden=0.352, note=asks whenever uncertain without burden modeling
+minus_overpromise_risk: success=0.596 +/- 0.006, viol=0.202, burden=0.167, note=does not penalize infeasible promises
+clarification_only: success=0.567 +/- 0.008, viol=0.125, burden=0.374, note=clarifies ambiguity but does not negotiate capability/roles
+minus_capability_map: success=0.561 +/- 0.006, viol=0.191, burden=0.190, note=removes robot capability map
+minus_intent_belief: success=0.555 +/- 0.009, viol=0.119, burden=0.180, note=removes human-intent belief update
+minus_role_negotiation: success=0.554 +/- 0.008, viol=0.135, burden=0.203, note=uses fixed role assignments
