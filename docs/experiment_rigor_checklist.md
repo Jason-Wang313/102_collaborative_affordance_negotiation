@@ -13,6 +13,8 @@
 - [x] Failure cases.
 - [x] Generated figures and LaTeX tables.
 - [x] Honest terminal gate.
+- [x] 2026-06-15 continuation rerun from source.
+- [x] v4.1 terminal audit.
 - [ ] Decisive gain over strongest baseline.
 - [ ] Ablation gate.
 - [ ] Real human-robot validation.

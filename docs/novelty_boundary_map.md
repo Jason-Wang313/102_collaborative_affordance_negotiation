@@ -15,7 +15,7 @@ The intended boundary was joint negotiation over human intent, robot capability,
 
 ## Current Evidence
 
-The boundary is not strong enough. The full method improves safety and over-promise but does not decisively beat `shared_autonomy_pomdp` on task success, and an ablation nearly matches it.
+The boundary is not strong enough. The v4.1 rerun confirms the full method improves safety and over-promise but does not decisively beat `shared_autonomy_pomdp` on task success, and an ablation remains too close.
 
 ## Terminal Novelty Decision
 

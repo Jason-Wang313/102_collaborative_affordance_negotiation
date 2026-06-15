@@ -73,3 +73,9 @@ Use vectorized or aggregate group simulation and write summary tables directly. 
 Completed: 2026-06-14 23:21:13 +0100
 
 The benchmark was implemented and run. Terminal gate result: KILL_ARCHIVE. The proposed method improved safety/over-promise but did not clear the practical success margin against `shared_autonomy_pomdp`, and the best removed-component ablation nearly matched the full method.
+
+## Continuation Result
+
+Re-audited: 2026-06-15 15:49:54 +0100
+
+The v4.1 continuation rerun recompiled and regenerated the benchmark from source. Terminal gate result remains KILL_ARCHIVE: combined-stress success margin over `shared_autonomy_pomdp` is `+0.0239`, below the `+0.030` practical gate, and the best removed-component ablation margin is only `+0.0196`.
