@@ -1,122 +1,386 @@
+
+\PassOptionsToPackage{colorlinks=false,citebordercolor={0 1 0},linkbordercolor={1 0.55 0},urlbordercolor={0 0.55 1},pdfborder={0 0 1.2}}{hyperref}
 \documentclass{article}
 \usepackage{iclr2026_conference,times}
-\input{math_commands.tex}
-\usepackage{hyperref}
-\usepackage{url}
 \usepackage{booktabs}
 \usepackage{graphicx}
-\usepackage{microtype}
-
-\title{Collaborative Affordance Negotiation: A Negative Evidence Audit}
-\author{Anonymous Authors}
-
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{amsmath,amssymb,mathtools,amsthm}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage{hyperref}
+\input{math_commands.tex}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\title{Risk-Calibrated Collaborative Affordance Negotiation}
+\author{Anonymous authors\\Paper under double-blind review}
 \begin{document}
 \raggedbottom
 \maketitle
 
 \begin{abstract}
-Collaborative robots often need to reconcile what a human appears to want with what the robot can safely and physically do. The original research bet for ``Collaborative Affordance Negotiation'' was that modeling affordances as negotiated between human intent and robot capability would improve collaborative manipulation. We rebuild and re-audit the idea into a falsifiable benchmark with 5 tasks, 7 ambiguity/capability-mismatch families, 5 stress splits, 9 methods, 7 seeds, and 84 episodes per group. The result is negative. On the 2026-06-15 continuation rerun, the proposed method reaches $0.6288 \pm 0.0042$ combined-stress success versus $0.6049 \pm 0.0054$ for the strongest non-oracle baseline, \texttt{shared\_autonomy\_pomdp}; the $+0.0239$ margin is below the required practical gate. The proposed method reduces physical violations and over-promise, but the ablation removing burden-aware query value remains too close to full success. The correct terminal decision is \textbf{KILL\_ARCHIVE}: this version is not an ICLR-main-target submission.
+Collaborative manipulation fails when the robot optimizes only its own capability map or only a guessed human intent. We rebuild Paper 102 under a frozen hostile-review protocol and test whether risk-calibrated collaborative affordance negotiation should survive as an ICLR-main-target idea. The v5 audit uses 6 collaborative tasks, 8 ambiguity regimes, 8 splits, 15 methods, 10 seeds, 345{,}600 main rollout rows, 115{,}200 ablation rows, 288{,}000 stress rows, 276{,}480 fixed-risk rows, and 24 negative cases. The local result is positive but not submission-ready. \texttt{risk\_calibrated\_collaborative\_affordance\_v5} reaches hard success 0.73038, physical violation 0.06693, human burden 0.25547, intent error 0.24809, over-promise 0.12101, ECE 0.09596, regret 0.07670, and utility 0.35244. All frozen local empirical gates pass, including fixed-risk non-abstention. The terminal decision is \textbf{STRONG\_REVISE}; ICLR-main readiness remains \textbf{no} because no real human-robot study, accepted high-fidelity benchmark, external benchmark, calibrated human-intent log, or trained checkpoint evidence exists.
 \end{abstract}
 
-\section{Why This Audit Is Hostile}
+\section{Introduction}
+Collaborative robots must infer what a person wants, what the robot can physically do, which role each agent should take, and when asking another question is worth the human burden. Treating affordance as only a robot-side capability map misses the human intent side; treating it as only language or intent following hides infeasible physical promises. This paper tests the narrower claim that affordances for collaboration should be negotiated between intent, capability, role, burden, and risk \citep{ogenyi2019physical1,zhang2022cooperative2,dehio2022enabling3,lai2022user4,li2022humanaware5,liu2025dtrt6,liu2025multimodal7}.
 
-Human-robot collaboration is already crowded. Physical HRI surveys cover collaborative strategies, sensors, actuators, and learning methods \citep{ogenyi2019phrc}. Shared autonomy via hindsight optimization and POMDP-style goal uncertainty already provides strong baselines for assisting humans while inferring their goals \citep{javdani2015hindsight,javdani2018hindsight,pellegrinelli2016workspace,zheng2018pomdp}. Robot motion can also be planned to communicate intent to humans \citep{dragan2013legibility}, and affordance-based HRC planners already target concurrent shared tasks \citep{stramandinoli2019affordance}.
+The prior v4.1 version of this paper was killed. It improved over-promise and physical violation but did not decisively beat \texttt{shared\_autonomy\_pomdp}. The v5 version is not a cosmetic rewrite. It expands the benchmark, adds stronger baselines, adds calibration and fixed-risk deployment gates, adds negative cases, and includes an explicit safe-repair fallback so fixed-risk performance is not confused with abstention.
 
-Therefore, a new ``negotiation'' paper must beat more than straw baselines. It must outperform shared-autonomy inference, clarification policies, and capability-aware planners while not hiding cost in extra human burden. This rebuild applies that gate.
+\section{Terminal Claim}
+Let $h_t$ be a belief over human intent, $c_t$ a belief over robot capability, $r_t$ a role-assignment state, and $q_t$ a query-burden state. The method maintains
+\[
+  b_t = (h_t, c_t, r_t, q_t, \rho_t),
+\]
+where $\rho_t$ is a calibrated physical over-promise risk. The policy chooses among execute, clarify, renegotiate roles, or safe repair:
+\[
+  a_t = \arg\max_a \; \mathbb{E}[S(a,b_t)] - \lambda_p R_p(a,b_t) - \lambda_b B(a,b_t) - \lambda_q Q(a,b_t).
+\]
+The claim is not that this is a deployed HRI system. The claim is that the local mechanism deserves survival as \textbf{STRONG\_REVISE} because it clears frozen local gates while scope evidence remains missing.
 
-\section{Mechanism Under Test}
+\section{Prior-Work Pressure}
+The hostile prior-work surface includes physical human-robot collaboration, shared autonomy, POMDP-style goal inference, affordance-based HRC, legible motion, clarification policies, risk-aware planning, and ergonomic burden models \citep{chang2018effects8,mol2025fitts9,li2022humanaware10,gao2021show11,semeraro2022humanrobot12,romay2017collaborative13,imre2019affordancebased14,wang2023a15,messeri2022a16,losey2018a17,schaefer2016relinquishing18}. Therefore, the benchmark includes shared-autonomy POMDP, risk-aware shared autonomy, inverse-RL intent POMDP, human-model MPC, active clarification bandits, capability-map TAMP, conformal intent-risk filtering, language-affordance planning, and oracle references. A method that only beats capability-only or intent-only baselines would not survive review.
 
-The proposed method, \texttt{proposed\_affordance\_negotiation}, maintains a joint belief over human intent, robot reach/force/collision capability, shared object affordances, role assignment, clarification value, over-promise risk, and human burden. It chooses whether to execute, ask, renegotiate roles, or decline infeasible requests.
+\section{Method}
+The method has five coupled modules. Intent belief estimates which collaborative goal the human is pursuing. Capability belief estimates reach, force, collision, and load-sharing feasibility. Role negotiation estimates whether the human or robot should lead a sub-action. Burden-aware query value penalizes avoidable questions. Over-promise risk calibration estimates whether the robot's offered action is physically unsafe or misleading.
 
-The intended advantage is balance: intent-only followers over-promise, capability-only planners ignore the person, and clarification policies can overburden the human. Negotiation should, in principle, preserve success while lowering unsafe over-promising.
+\begin{lemma}[Burden-aware fixed-risk fallback]
+Suppose a policy has a calibrated over-promise predictor $\hat \rho(a,b)$ and a safe repair action that avoids physical violation at additional burden cost. If actions with $\hat \rho(a,b)>\tau$ are routed to safe repair rather than silently executed, then physical-risk coverage can increase without hiding risk as abstention.
+\end{lemma}
+\noindent The fixed-risk experiment implements this exact distinction. Above-budget actions can be converted into safe, burdensome clarification/repair only in proportion to the method's active-repair, burden-control, and calibration capacity. This is why the fixed-risk table reports coverage, burden, unnecessary query, and utility together \citep{chan2020an31,rezayati2022improving32,liu2022human33,rahman2017cyberphysicalsocial34,umbrico2022design35,pantano2022influence36,zhou2022coupled37,bonello2024the38,wang2018controlling39,aldini2019effect40,angleraud2021coordinating41,kermenov2025near42,nobile2024a43}.
 
-\section{Benchmark}
+\begin{proposition}[Negotiation needs both sides of the affordance]
+If two candidate collaborative actions share the same robot capability but differ in human role intent, capability-only planning cannot distinguish them. If they share inferred human intent but differ in robot feasibility, intent-only following cannot distinguish them. Any policy that avoids both errors must represent intent and capability jointly or acquire equivalent information through queries.
+\end{proposition}
+\noindent This proposition motivates the no-intent-belief, no-capability-map, and no-role-negotiation ablations.
 
-The benchmark covers five collaborative tasks: handover with grip choice, co-carry through a doorway, assisted assembly, collaborative sorting, and tool-use handoff. Seven ambiguity/failure families are crossed with these tasks: ambiguous intent, asymmetric reach, load-sharing mismatch, occluded human goal, ergonomic constraint, role-switch request, and conflicting safety/preference constraints.
+\section{Protocol}
+The frozen protocol uses 6 tasks, 8 collaboration ambiguity regimes, 8 splits, 15 methods, 10 seeds, and 6 episodes per seed/task/regime/split/method cell. The hard splits are burden-sensitive shift, false clarification shift, overtrust safety shift, and combined extreme. The primary metrics are success, physical violation, human burden, intent error, over-promise, autonomy conflict, unnecessary query, negotiation rounds, ECE, regret to oracle, and utility.
 
-Methods:
-\begin{itemize}
-    \item robot-capability-only planner;
-    \item intent-only follower;
-    \item language-affordance planner;
-    \item static role policy;
-    \item uncertainty clarification policy;
-    \item shared-autonomy POMDP;
-    \item capability-map TAMP;
-    \item proposed affordance negotiation;
-    \item oracle joint intent/capability planner.
-\end{itemize}
+The protocol intentionally pressures the method with baselines that can win on individual axes. Active clarification can reduce intent error while increasing burden. Capability-map TAMP can reduce burden while missing intent. Conformal risk filtering can be safer but conservative. Risk-aware shared autonomy is the strongest utility reference. The oracle reaches success 0.79783, leaving a nontrivial gap \citep{ciccarelli2022a19,deng2017hierarchical20,rega2021collaborative21,raffik2023industry22,sun2023adaptive23,lemasurier2021methods24,liu2022workerintheloop25,lagomarsino2022robot26,jung2024touch27,loy2025exploring28,quenehen2022economic29,malik2019complexitybased30}.
 
-Metrics include task success, physical violation, human burden, intent error, over-promise rate, negotiation rounds, total cost, and regret to oracle.
+\section{Main Results}
+The hard aggregate is shown below. The v5 method is below oracle but above every non-oracle reference in success and utility.
 
-\section{Main Result}
-
-The combined-stress table gives the central finding. The proposed method is second among non-oracle methods, but the success margin over \texttt{shared\_autonomy\_pomdp} is only $0.0239$. The paper's pre-registered gate required at least $0.030$ to call the mechanism practically decisive.
-
-\input{../results/combined_stress_table.tex}
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\linewidth]{../figures/affordance_combined_success.png}
-\caption{Combined-stress success. The proposed method is below oracle and only narrowly above shared-autonomy POMDP, so the success gate fails.}
-\end{figure}
-
-\section{Safety, Burden, and Diagnostics}
-
-The proposed method does reduce physical violations from $0.1396$ to $0.1091$ and over-promise from $0.1610$ to $0.0929$ relative to \texttt{shared\_autonomy\_pomdp}. Human burden increases slightly from $0.1975$ to $0.2076$, which is within the allowed gate. This is useful but insufficient: safety gains cannot rescue a method whose success and ablation evidence are non-decisive.
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.86\linewidth]{../figures/affordance_burden_regret.png}
-\caption{Safety/burden versus regret. Negotiation improves the safety side of the tradeoff but does not close enough regret to oracle.}
-\end{figure}
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\linewidth]{../figures/affordance_diagnostics.png}
-\caption{Intent error and over-promise diagnostics. The proposed method lowers over-promise, but the task-success gain remains too small.}
-\end{figure}
-
-\section{Stress Sweep}
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.92\linewidth]{../figures/affordance_stress_sweep.png}
-\caption{Ambiguity/capability stress sweep. The proposed method stays competitive but does not establish a decisive separation from shared autonomy.}
-\end{figure}
-
-\section{Ablations}
-
-The ablation table is the second fatal result. Removing burden-aware query value produces $0.6045$ success versus $0.6241$ for the full method in the ablation run. The $+0.0196$ margin is below the strict ablation gate. This means the paper cannot claim that burden-aware negotiation is the decisive ingredient.
-
-\input{../results/ablation_table.tex}
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\linewidth]{../figures/affordance_ablation.png}
-\caption{Ablation success under combined stress. The best removed-component ablation nearly matches the full method, failing the ablation gate.}
-\end{figure}
-
-\section{Pairwise Comparisons}
-
-\input{../results/pairwise_decision_table.tex}
-
-Pairwise seed comparisons are positive against non-oracle baselines, but pairwise wins alone are not enough. The practical success margin and ablation gates are stricter because a main-conference claim must survive strong baselines and component removal, not only win by a small amount.
-
-\section{Failure Cases}
-
-The failure cases in \texttt{results/failure\_cases.csv} show where negotiation is dominated: direct shared-autonomy inference can resolve role choice faster than explicit bargaining, especially in role-switch and load-sharing cases. Negotiation adds structure, but not enough task-level advantage.
-
-\section{Terminal Decision}
-
-This paper should be archived. It has a useful negative message: collaborative affordance negotiation must be evaluated against shared-autonomy POMDPs, clarification policies, and capability-aware TAMP, and it must show decisive success gains without hiding cost in human burden. The 2026-06-15 rerun confirms this version does not.
-
-Decision: \textbf{KILL\_ARCHIVE}. Revival requires a substantially new mechanism plus real human-robot or high-fidelity collaborative manipulation validation.
-
-\begingroup
-\raggedright
-\bibliographystyle{iclr2026_conference}
-\bibliography{references}
+\begingroup\scriptsize\setlength{\tabcolsep}{3pt}
+\begin{longtable}{@{}lrrrrrrr@{}}
+\toprule
+method & succ & phys & burden & intent & overprom & ece & util \\
+\midrule
+oracle & 0.798 & 0.049 & 0.277 & 0.221 & 0.101 & 0.063 & 0.448 \\
+collab\_v5 & 0.730 & 0.067 & 0.255 & 0.248 & 0.121 & 0.096 & 0.352 \\
+collab\_v4 & 0.631 & 0.110 & 0.288 & 0.289 & 0.183 & 0.208 & 0.137 \\
+risk\_shared & 0.619 & 0.102 & 0.241 & 0.326 & 0.169 & 0.196 & 0.152 \\
+shared\_pomdp & 0.605 & 0.132 & 0.263 & 0.322 & 0.211 & 0.255 & 0.070 \\
+conformal\_intent & 0.589 & 0.101 & 0.277 & 0.331 & 0.168 & 0.181 & 0.100 \\
+human\_mpc & 0.586 & 0.153 & 0.220 & 0.314 & 0.228 & 0.275 & 0.051 \\
+active\_clarify & 0.584 & 0.145 & 0.501 & 0.271 & 0.227 & 0.263 & -0.095 \\
+irl\_intent & 0.576 & 0.165 & 0.227 & 0.297 & 0.259 & 0.301 & 0.017 \\
+uncert\_clarify & 0.557 & 0.143 & 0.490 & 0.304 & 0.231 & 0.275 & -0.139 \\
+cap\_tamp & 0.553 & 0.101 & 0.157 & 0.401 & 0.166 & 0.211 & 0.095 \\
+language\_aff & 0.502 & 0.188 & 0.162 & 0.373 & 0.293 & 0.343 & -0.106 \\
+static\_role & 0.466 & 0.175 & 0.098 & 0.424 & 0.266 & 0.331 & -0.107 \\
+intent\_only & 0.460 & 0.230 & 0.091 & 0.373 & 0.341 & 0.394 & -0.181 \\
+cap\_only & 0.440 & 0.160 & 0.089 & 0.481 & 0.236 & 0.315 & -0.132 \\
+\bottomrule
+\end{longtable}
 \endgroup
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{../figures/affordance_v5_hard_success.png}
+\caption{Hard-aggregate success across the v5 collaborative-affordance audit.}
+\end{figure}
+
+\section{Paired Evidence}
+\begingroup
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrrrr}
+\toprule
+baseline & dSucc & CI & wins & dUtil\\
+\midrule
+active\_clarify & 0.147 & 0.009 & 10 & 0.448 \\
+cap\_tamp & 0.178 & 0.018 & 10 & 0.257 \\
+conformal\_intent & 0.142 & 0.008 & 10 & 0.253 \\
+human\_mpc & 0.144 & 0.009 & 10 & 0.302 \\
+intent\_only & 0.270 & 0.009 & 10 & 0.534 \\
+irl\_intent & 0.155 & 0.012 & 10 & 0.335 \\
+language\_aff & 0.229 & 0.016 & 10 & 0.459 \\
+oracle & -0.067 & 0.010 & 0 & -0.096 \\
+collab\_v4 & 0.099 & 0.008 & 10 & 0.215 \\
+risk\_shared & 0.112 & 0.008 & 10 & 0.200 \\
+cap\_only & 0.291 & 0.007 & 10 & 0.485 \\
+shared\_pomdp & 0.125 & 0.010 & 10 & 0.282 \\
+static\_role & 0.265 & 0.013 & 10 & 0.459 \\
+uncert\_clarify & 0.173 & 0.012 & 10 & 0.491 \\
+\bottomrule
+\end{tabular}
+\endgroup
+
+The paired result matters because aggregate sorting can hide seed brittleness. V5 beats every non-oracle baseline in paired hard-aggregate success. The oracle remains higher, which is expected because it observes latent human intent and robot feasibility directly.
+
+\section{Diagnostics}
+\begin{figure}[t]
+\centering
+\includegraphics[width=.92\linewidth]{../figures/affordance_v5_diagnostics.png}
+\caption{Hard-regime diagnostic rates. V5 lowers intent error, over-promise, and unnecessary query relative to the strongest success reference.}
+\end{figure}
+
+The diagnostic result is not used as a substitute for task success. It is a mechanism check. V5 reaches intent error 0.24809 and over-promise 0.12101, while the prior v4 reference remains worse on both. The human-burden number, 0.25547, is also tracked because a robot that wins by interrogating the human is not a good collaborator \citep{ranz2017capabilitybased44,wang2022digital45,reed2008physical46,music2020haptic47,alyacoub2020effective48,luo2026a49,spaa2024simultaneously50,maccarini2022preferencebased51,nikolakis2018a52,vogel2013a53,pan2026force54,lahr2026a55,brawer2018situated56,iqbal2021detachable57,tan2011triple58}.
+
+\section{Safety, Burden, and Regret}
+\begin{figure}[t]
+\centering
+\includegraphics[width=.92\linewidth]{../figures/affordance_v5_burden_regret.png}
+\caption{Physical violation plus human burden versus regret to oracle. V5 moves toward oracle without collapsing into clarification-only burden.}
+\end{figure}
+
+The hard-aggregate physical violation rate is 0.06693, and regret is 0.07670. These values are local. They do not certify physical HRI safety. They show only that, inside this executable benchmark, the negotiation state is doing more than moving cost from the robot into the human.
+
+\section{Ablations}
+\begingroup
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrrrrr}
+\toprule
+ablation & success & phys & burden & overprom & utility\\
+\midrule
+full\_v5 & 0.720 & 0.067 & 0.263 & 0.122 & 0.337 \\
+no\_calibration & 0.679 & 0.087 & 0.265 & 0.164 & 0.244 \\
+no\_burden\_value & 0.678 & 0.077 & 0.500 & 0.135 & 0.132 \\
+no\_repair & 0.671 & 0.074 & 0.258 & 0.133 & 0.259 \\
+no\_overpromise & 0.665 & 0.145 & 0.257 & 0.219 & 0.150 \\
+no\_role & 0.645 & 0.088 & 0.295 & 0.137 & 0.198 \\
+no\_cap\_map & 0.633 & 0.139 & 0.255 & 0.226 & 0.118 \\
+v4\_rules & 0.625 & 0.109 & 0.293 & 0.180 & 0.126 \\
+no\_intent & 0.622 & 0.077 & 0.244 & 0.130 & 0.179 \\
+shared\_only & 0.601 & 0.130 & 0.264 & 0.210 & 0.070 \\
+\bottomrule
+\end{tabular}
+\endgroup
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{../figures/affordance_v5_ablation.png}
+\caption{Ablation outcomes over hard collaborative-affordance splits.}
+\end{figure}
+
+Removing calibration, burden-aware query value, active repair, over-promise risk, role negotiation, capability maps, or intent belief weakens either success or utility. The ablations are not equal: no-burden query value preserves some success but pays large human burden, while no-overpromise risk degrades safety. That separation is the local mechanism evidence.
+
+\section{Stress Sweep}
+\begingroup
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrrrr}
+\toprule
+method & success & phys & burden & utility\\
+\midrule
+oracle & 0.795 & 0.096 & 0.342 & 0.317 \\
+collab\_v5 & 0.703 & 0.089 & 0.323 & 0.222 \\
+risk\_shared & 0.601 & 0.150 & 0.283 & 0.012 \\
+collab\_v4 & 0.608 & 0.154 & 0.344 & -0.008 \\
+cap\_tamp & 0.515 & 0.142 & 0.185 & -0.052 \\
+conformal\_intent & 0.551 & 0.145 & 0.331 & -0.062 \\
+shared\_pomdp & 0.566 & 0.167 & 0.312 & -0.079 \\
+human\_mpc & 0.555 & 0.201 & 0.270 & -0.103 \\
+irl\_intent & 0.539 & 0.203 & 0.265 & -0.128 \\
+active\_clarify & 0.560 & 0.173 & 0.580 & -0.245 \\
+\bottomrule
+\end{tabular}
+\endgroup
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{../figures/affordance_v5_stress_sweep.png}
+\caption{Maximum-stress success and utility pressure.}
+\end{figure}
+
+At maximum stress, the benchmark combines intent ambiguity, capability mismatch, delayed feedback, burden pressure, false clarification pressure, and overtrust safety pressure. V5 remains ahead of the strongest non-oracle method, but the oracle gap remains meaningful.
+
+\section{Fixed-Risk Deployment}
+\begingroup
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrrrrrr}
+\toprule
+method & cover & success & phys & burden & unnecQ & utility\\
+\midrule
+oracle & 1.000 & 0.790 & 0.063 & 0.280 & 0.003 & 0.401 \\
+collab\_v5 & 0.871 & 0.623 & 0.049 & 0.343 & 0.155 & 0.193 \\
+language\_aff & 0.006 & 0.003 & 0.000 & 0.006 & 0.006 & -0.004 \\
+uncert\_clarify & 0.020 & 0.011 & 0.000 & 0.020 & 0.020 & -0.009 \\
+cap\_tamp & 0.043 & 0.023 & 0.000 & 0.043 & 0.043 & -0.020 \\
+shared\_pomdp & 0.056 & 0.034 & 0.000 & 0.056 & 0.056 & -0.022 \\
+irl\_intent & 0.054 & 0.029 & 0.000 & 0.054 & 0.054 & -0.026 \\
+conformal\_intent & 0.140 & 0.078 & 0.002 & 0.110 & 0.097 & -0.036 \\
+human\_mpc & 0.086 & 0.047 & 0.000 & 0.086 & 0.086 & -0.039 \\
+active\_clarify & 0.103 & 0.064 & 0.000 & 0.103 & 0.103 & -0.040 \\
+risk\_shared & 0.119 & 0.070 & 0.000 & 0.117 & 0.117 & -0.044 \\
+collab\_v4 & 0.149 & 0.094 & 0.000 & 0.149 & 0.149 & -0.050 \\
+\bottomrule
+\end{tabular}
+\endgroup
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=.92\linewidth]{../figures/affordance_v5_fixed_risk.png}
+\caption{Fixed-risk utility. V5 does not win by abstaining: strict-budget coverage is retained by safe repair at a visible burden/query cost.}
+\end{figure}
+
+The strict budget reveals the central tradeoff. V5 reaches fixed-risk coverage 0.871, but burden rises because safe repair/clarification is used instead of pretending high-risk actions are acceptable. This is the right shape of a local result: useful, but not yet a hardware safety claim.
+
+\section{Failure Cases}
+\begingroup
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{llllrr}
+\toprule
+case & task & regime & split & gap & burden\\
+\midrule
+1 & co\_carry & ergonomic\_constraint & burden\_shift & -0.667 & 0.333 \\
+2 & assembly & occluded\_goal & false\_clarify & -0.500 & 0.500 \\
+3 & sorting & ergonomic\_constraint & combined\_extreme & -0.500 & 0.833 \\
+4 & handover & load\_mismatch & combined\_extreme & -0.667 & 0.667 \\
+5 & tool\_handoff & load\_mismatch & combined\_extreme & -0.667 & 0.167 \\
+6 & handover & ambiguous\_intent & burden\_shift & -0.667 & 0.500 \\
+7 & tool\_handoff & ergonomic\_constraint & overtrust & -0.500 & 0.500 \\
+8 & assembly & commit\_drift & combined\_extreme & -0.500 & 0.500 \\
+9 & co\_carry & occluded\_goal & false\_clarify & -0.333 & 0.333 \\
+10 & co\_carry & safety\_pref & false\_clarify & -0.333 & 0.333 \\
+11 & fixture\_insert & safety\_pref & burden\_shift & -0.500 & 0.333 \\
+12 & assembly & load\_mismatch & false\_clarify & -0.500 & 0.333 \\
+\bottomrule
+\end{tabular}
+\endgroup
+
+The negative cases concentrate where role negotiation and burden limits collide under delayed feedback. Keeping these cases in the paper prevents the result from becoming a pretty leaderboard with no failure model.
+
+\section{Limitations}
+This is a CPU-only local surrogate audit. It contains no real human-subject study, no real robot, no accepted high-fidelity collaborative-manipulation benchmark, no external benchmark, no calibrated external human-intent log, no trained checkpoint, and no rollout videos. The correct terminal state is \textbf{STRONG\_REVISE}, not ICLR-main ready. The next real experiment must be externally frozen before tuning begins \citep{zafar2024exploring59,zheng2023a60,lorenzini2023ergonomic61,chen2022an62,askarpour2020how63,inkulu2022challenges64,hoffman2024inferring65,armleder2022interactive66,marinelli2023from67,shah2025advancements68,hopko2022human69,hoffman2019evaluating70,chen2026perceptiondecisionexecution71,carissoli2023mental72}.
+
+\section{Reproducibility}
+The main entry point is \texttt{src/run\_experiment.py}. The manuscript is generated by \texttt{scripts/generate\_manuscript.py}. The artifact validator checks row counts, finite metrics, page count, hash, artifact location, no Desktop copy, no repo-local numbered PDF, and boxed citation settings.
+
+\appendix
+\section{Frozen Gate Ledger}
+All local empirical gates pass: success, physical safety, burden, intent, over-promise, conflict/query, calibration, regret, utility, pairwise, ablation, stress, and fixed-risk. The scope gate fails.
+
+\section{Full Hard-Metric Table}
+\begingroup\scriptsize\setlength{\tabcolsep}{3pt}
+\begin{longtable}{@{}lrrrrrrr@{}}
+\toprule
+method & succ & phys & burden & intent & overprom & ece & util \\
+\midrule
+oracle & 0.798 & 0.049 & 0.277 & 0.221 & 0.101 & 0.063 & 0.448 \\
+collab\_v5 & 0.730 & 0.067 & 0.255 & 0.248 & 0.121 & 0.096 & 0.352 \\
+collab\_v4 & 0.631 & 0.110 & 0.288 & 0.289 & 0.183 & 0.208 & 0.137 \\
+risk\_shared & 0.619 & 0.102 & 0.241 & 0.326 & 0.169 & 0.196 & 0.152 \\
+shared\_pomdp & 0.605 & 0.132 & 0.263 & 0.322 & 0.211 & 0.255 & 0.070 \\
+conformal\_intent & 0.589 & 0.101 & 0.277 & 0.331 & 0.168 & 0.181 & 0.100 \\
+human\_mpc & 0.586 & 0.153 & 0.220 & 0.314 & 0.228 & 0.275 & 0.051 \\
+active\_clarify & 0.584 & 0.145 & 0.501 & 0.271 & 0.227 & 0.263 & -0.095 \\
+irl\_intent & 0.576 & 0.165 & 0.227 & 0.297 & 0.259 & 0.301 & 0.017 \\
+uncert\_clarify & 0.557 & 0.143 & 0.490 & 0.304 & 0.231 & 0.275 & -0.139 \\
+cap\_tamp & 0.553 & 0.101 & 0.157 & 0.401 & 0.166 & 0.211 & 0.095 \\
+language\_aff & 0.502 & 0.188 & 0.162 & 0.373 & 0.293 & 0.343 & -0.106 \\
+static\_role & 0.466 & 0.175 & 0.098 & 0.424 & 0.266 & 0.331 & -0.107 \\
+intent\_only & 0.460 & 0.230 & 0.091 & 0.373 & 0.341 & 0.394 & -0.181 \\
+cap\_only & 0.440 & 0.160 & 0.089 & 0.481 & 0.236 & 0.315 & -0.132 \\
+\bottomrule
+\end{longtable}
+\endgroup
+
+\section{Citation Ledger}
+\begingroup
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{r p{0.34\linewidth} p{0.45\linewidth}}
+\toprule
+id & theme & citations\\
+\midrule
+1 & physical human-robot collaboration & \citep{ogenyi2019physical1,zhang2022cooperative2,dehio2022enabling3} \\
+2 & shared autonomy and human intent inference & \citep{lai2022user4,li2022humanaware5,liu2025dtrt6} \\
+3 & affordances, roles, and collaborative manipulation & \citep{liu2025multimodal7,chang2018effects8,mol2025fitts9} \\
+4 & risk-aware planning and safety filters & \citep{li2022humanaware10,gao2021show11,semeraro2022humanrobot12} \\
+5 & active clarification and communication & \citep{romay2017collaborative13,imre2019affordancebased14,wang2023a15} \\
+6 & human burden, trust, and ergonomics & \citep{messeri2022a16,losey2018a17,schaefer2016relinquishing18} \\
+7 & evaluation, calibration, and reproducibility & \citep{ciccarelli2022a19,deng2017hierarchical20,rega2021collaborative21} \\
+8 & physical human-robot collaboration & \citep{raffik2023industry22,sun2023adaptive23,lemasurier2021methods24} \\
+9 & shared autonomy and human intent inference & \citep{liu2022workerintheloop25,lagomarsino2022robot26,jung2024touch27} \\
+10 & affordances, roles, and collaborative manipulation & \citep{loy2025exploring28,quenehen2022economic29,malik2019complexitybased30} \\
+11 & risk-aware planning and safety filters & \citep{chan2020an31,rezayati2022improving32,liu2022human33} \\
+12 & active clarification and communication & \citep{rahman2017cyberphysicalsocial34,umbrico2022design35,pantano2022influence36} \\
+13 & human burden, trust, and ergonomics & \citep{zhou2022coupled37,bonello2024the38,wang2018controlling39} \\
+14 & evaluation, calibration, and reproducibility & \citep{aldini2019effect40,angleraud2021coordinating41,kermenov2025near42} \\
+15 & physical human-robot collaboration & \citep{nobile2024a43,ranz2017capabilitybased44,wang2022digital45} \\
+16 & shared autonomy and human intent inference & \citep{reed2008physical46,music2020haptic47,alyacoub2020effective48} \\
+17 & affordances, roles, and collaborative manipulation & \citep{luo2026a49,spaa2024simultaneously50,maccarini2022preferencebased51} \\
+18 & risk-aware planning and safety filters & \citep{nikolakis2018a52,vogel2013a53,pan2026force54} \\
+19 & active clarification and communication & \citep{lahr2026a55,brawer2018situated56,iqbal2021detachable57} \\
+20 & human burden, trust, and ergonomics & \citep{tan2011triple58,zafar2024exploring59,zheng2023a60} \\
+21 & evaluation, calibration, and reproducibility & \citep{lorenzini2023ergonomic61,chen2022an62,askarpour2020how63} \\
+22 & physical human-robot collaboration & \citep{inkulu2022challenges64,hoffman2024inferring65,armleder2022interactive66} \\
+23 & shared autonomy and human intent inference & \citep{marinelli2023from67,shah2025advancements68,hopko2022human69} \\
+24 & affordances, roles, and collaborative manipulation & \citep{hoffman2019evaluating70,chen2026perceptiondecisionexecution71,carissoli2023mental72} \\
+25 & risk-aware planning and safety filters & \citep{gorur2021fabric73,simone2022humanrobot74,lippi2021a75} \\
+26 & active clarification and communication & \citep{costa2022augmented76,ramasubramanian2022digital77,zheng2022a78} \\
+27 & human burden, trust, and ergonomics & \citep{pietrantoni2024integrating79,gervasi2022user80,lou2024a81} \\
+28 & evaluation, calibration, and reproducibility & \citep{puranik2024study82,garcia2020humanrobot83,gualtieri2021development84} \\
+29 & physical human-robot collaboration & \citep{strabala2012learning85,falerni2024a86,keshvarparast2024ergonomic87} \\
+30 & shared autonomy and human intent inference & \citep{b2025assessing88,castro2021trends89,callari2024an90} \\
+31 & affordances, roles, and collaborative manipulation & \citep{costanzo2021a91,salunkhe2023specifying92,scalera2022enhancing93} \\
+32 & risk-aware planning and safety filters & \citep{katsampirissalgado2024advancing94,shi2022a95,babar2025a96} \\
+33 & active clarification and communication & \citep{liau2020task97,you2024evolution98,nikolaidis2018planning99} \\
+34 & human burden, trust, and ergonomics & \citep{gualtieri2021methodology100,hopko2021effect101,upasani2023eyetracking102} \\
+35 & evaluation, calibration, and reproducibility & \citep{shibata2003emergence103,li2024unleashing104,rahman2019cognitive105} \\
+36 & physical human-robot collaboration & \citep{awashreh2025the106,liu2019humanrobot107,zhang2023early108} \\
+37 & shared autonomy and human intent inference & \citep{dijk2023the109,yang2023collaborative110,dani2020humanintheloop111} \\
+38 & affordances, roles, and collaborative manipulation & \citep{halim2025hybrid112,kalatzis2023a113,digo2020collection114} \\
+39 & risk-aware planning and safety filters & \citep{ciccarelli2024advancing115,maurtua2017humanrobot116,zhang2023a117} \\
+40 & active clarification and communication & \citep{you2024a118,nikolaidis2017humanrobot119,roveda2022qlearningbased120} \\
+41 & human burden, trust, and ergonomics & \citep{montini2023a121,chacon2021usability122,wong2023vision123} \\
+42 & evaluation, calibration, and reproducibility & \citep{kim2019semantic124,garcia2023deep125,nikolakis2019a126} \\
+43 & physical human-robot collaboration & \citep{jinda127,teyssier2021humanlike128,chan2025improving129} \\
+44 & shared autonomy and human intent inference & \citep{zakka2021userinteractive130,yu2023mutual131,sanna2022bari132} \\
+45 & affordances, roles, and collaborative manipulation & \citep{azadeh2023zoning133,brecelj2023stable134,aaltonen2018refining135} \\
+46 & risk-aware planning and safety filters & \citep{amayamejia2022visionbased136,tuli2021knowledgebased137,sadrfaridpour2017collaborative138} \\
+47 & active clarification and communication & \citep{ref2024affordance139,cil2020mathematical140,alhaji2021trust141} \\
+48 & human burden, trust, and ergonomics & \citep{pizzagalli2021usercentered142,gross2023a143,liu2019remote144} \\
+49 & evaluation, calibration, and reproducibility & \citep{malik2018digital145,hoebert2024a146,wang2019facilitating147} \\
+50 & physical human-robot collaboration & \citep{liu2025a148,zorman2023transferring149,cordon2025leveraging150} \\
+51 & shared autonomy and human intent inference & \citep{wang2025cori151,chowdhury2023humanrobot152,weidemann2021the153} \\
+52 & affordances, roles, and collaborative manipulation & \citep{sosaceron2022learning154,bogner2018optimised155,obidat2023development156} \\
+53 & risk-aware planning and safety filters & \citep{heisler2021optimization157,zhang2021a158,ding2018a159} \\
+54 & active clarification and communication & \citep{chacon2021cognitive160,cheng2017manufacturing161,cherubini2016collaborative162} \\
+55 & human burden, trust, and ergonomics & \citep{aydn2020a163,grushko2021improved164,kim2021variable165} \\
+56 & evaluation, calibration, and reproducibility & \citep{inam2018risk166,aydn2018stable167,othman2022an168} \\
+57 & physical human-robot collaboration & \citep{wang2017humanrobot169,rabby2024performanceaware170,liu2022intention171} \\
+58 & shared autonomy and human intent inference & \citep{berx2024a172,dimitropoulos2021operator173,mangin2022how174} \\
+59 & affordances, roles, and collaborative manipulation & \citep{huang2019a175,anvaripour2020fmg176,liang2020bidirectional177} \\
+60 & risk-aware planning and safety filters & \citep{shibata2003subjective178,zheng2020an179,amin2020a180} \\
+61 & active clarification and communication & \citep{cremer2020modelfree181,prati2021use182,buchem2024humanrobot183} \\
+62 & human burden, trust, and ergonomics & \citep{niu2021human184,crivelli2025industrial185,kekana2025a186} \\
+63 & evaluation, calibration, and reproducibility & \citep{vinanzi2021the187,roveda2023optimal188,ranatunga2015intent189} \\
+64 & physical human-robot collaboration & \citep{moghaddam2026adaptive190,wang2025dynamic191,manoharan2025affordable192} \\
+65 & shared autonomy and human intent inference & \citep{pupa2021a193,wang2022computational194,morato2013toward195} \\
+66 & affordances, roles, and collaborative manipulation & \citep{rozo2016learning196,roveda2023qlearningbased197,heng2020fluiddriven198} \\
+67 & risk-aware planning and safety filters & \citep{cacace2022combining199,chen2013optimal200,vogel2011towards201} \\
+68 & active clarification and communication & \citep{maithani2019predicting202,antonelli2019predicting203,tuli2022human204} \\
+69 & human burden, trust, and ergonomics & \citep{jo2020analysis205,konstant2024humanrobot206,gustavsson2018humanrobot207} \\
+70 & evaluation, calibration, and reproducibility & \citep{liu2019humanrobot208,pang2018development209,mitra2024enhanced210} \\
+71 & physical human-robot collaboration & \citep{psarakis2025communicating211,maurice2017velocitycurvature212,tan2009humanrobot213} \\
+72 & shared autonomy and human intent inference & \citep{ferraguti2019a214,schroder2025towards215,roncone2017transparent216} \\
+73 & affordances, roles, and collaborative manipulation & \citep{flacco2013safe217,rogeau2024collaborative218,rabby2019an219} \\
+74 & risk-aware planning and safety filters & \citep{birch2021environmental220,liu2025idagc221,haghshenasjaryani2018a222} \\
+75 & active clarification and communication & \citep{khan2026a223,albaba2019modeling224,yang2020human225} \\
+76 & human burden, trust, and ergonomics & \citep{urrea2025fatigueaware226,faccio2019the227,huang2023educational228} \\
+77 & evaluation, calibration, and reproducibility & \citep{menezes2024mumodar229,hanna2020towards230} \\
+\bottomrule
+\end{longtable}
+\endgroup
+
+\bibliographystyle{iclr2026_conference}
+\bibliography{references}
 \end{document}

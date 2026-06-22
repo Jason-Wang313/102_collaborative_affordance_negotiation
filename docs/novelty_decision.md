@@ -1,7 +1,7 @@
 # Novelty Decision
 
-Decision: not enough for ICLR main.
+Decision: conditionally promising.
 
-Collaborative affordance negotiation is an interesting framing, but the v4.1 rerun does not establish a decisive mechanism beyond strong shared-autonomy and clarification baselines.
+The v5 evidence supports reviving the idea as STRONG_REVISE. The mechanism is more specific than generic shared autonomy because it jointly represents intent, capability, role assignment, burden-aware query value, physical over-promise risk, calibration, and active safe repair.
 
-Terminal action: KILL_ARCHIVE.
+The novelty is not enough for ICLR main without external validation and a deeper manual related-work survey.

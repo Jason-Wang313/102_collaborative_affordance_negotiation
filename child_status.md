@@ -2,18 +2,20 @@
 
 Paper: 102 collaborative_affordance_negotiation
 
-Status: SUCCESS_KILL_ARCHIVE
+Status: SUCCESS_STRONG_REVISE
 
-Hardening version: v4.1
+Hardening version: v5 expanded
 
-Last update: 2026-06-15 15:49:54 +0100
+Last update: 2026-06-22
 
 PDF: C:/Users/wangz/Downloads/102.pdf
 
-PDF SHA256: C59626EBAC3DCECF972EC578641B398A80CEE497CAAE6FF3B7D77665D71A39B8
+PDF SHA256: C384D1E57B0C3F5C42B044027505CD847BBDFA1FD82FB513ABBCDDF0BEADC69E
+
+Pages: 27
 
 GitHub: https://github.com/Jason-Wang313/102_collaborative_affordance_negotiation
 
-Evidence: local collaborative-affordance benchmark re-run on 2026-06-15 with strong baselines, ablations, stress sweep, uncertainty, failure cases, generated figures, generated tables, and v4.1 terminal audit.
+Evidence: v5 rerun with 345,600 main closed-loop rollouts, 115,200 ablation rollouts, 288,000 stress rollouts, 276,480 fixed-risk rollouts, 24 negative cases, strong non-oracle baselines, oracle reference, calibration and fixed-risk tests, generated figures, generated tables, and a 27-page manuscript with boxed citation links. The proposed `risk_calibrated_collaborative_affordance_v5` reaches success 0.73038 versus 0.63090 for the strongest non-oracle success reference and 0.60503 for `shared_autonomy_pomdp`.
 
-ICLR main ready: no. The proposed negotiation method beats `shared_autonomy_pomdp` by only `+0.0239` combined-stress success, below the `+0.030` practical gate, and fails the ablation gate.
+ICLR main ready: no. All local empirical gates pass, but the scope gate fails because human-robot validation, calibrated human-intent logs, accepted high-fidelity benchmark evidence, a trained deployable checkpoint, and rollout videos are still missing.

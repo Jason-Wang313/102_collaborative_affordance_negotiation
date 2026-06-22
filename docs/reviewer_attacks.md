@@ -1,9 +1,13 @@
 # Reviewer Attacks
 
-1. The proposed method does not decisively beat `shared_autonomy_pomdp`: v4.1 margin is `+0.0239`, below the `+0.030` gate.
-2. The ablation removing burden-aware query value remains too close to the full method: `0.6045` vs `0.6241` success.
-3. The benchmark uses simulated human intent and burden rather than human-subject data.
-4. Real collaborative robotics needs timing, trust, ergonomics, and adaptation evidence.
-5. The oracle gap remains large: `0.6288` proposed success versus `0.7602` oracle success.
-6. Human burden is abstract and not validated with participant measures.
-7. Related work still needs a full manual synthesis.
+1. The collaboration regimes are hand-designed and not calibrated from human-subject logs.
+2. The proposed detector is still an executable proxy, not a trained human-robot model with released checkpoints.
+3. Shared-autonomy and human-model MPC systems may close the gap under real interaction data.
+4. Intent and over-promise diagnostics are useful, but reviewers will demand real closed-loop HRI rollouts.
+5. The oracle gap remains material: `0.73038` proposed success versus `0.79783` oracle success.
+6. Fixed-risk safe repair increases human burden and needs human-subject validation.
+7. The paper still needs a full manual related-work synthesis.
+8. The benchmark is large, but still local; reviewers can attack domain transfer.
+9. The fixed-risk audit is local and does not certify safety on hardware or with human participants.
+
+Response after v5: keep the paper as STRONG_REVISE because the local collaborative-affordance mechanism survives a stronger audit, but do not submit it without external validation.

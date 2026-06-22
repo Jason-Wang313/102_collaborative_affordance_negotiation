@@ -3,20 +3,23 @@
 ## Crowded Territory
 
 - Shared autonomy.
-- Human intent inference.
-- Capability maps.
-- Language-conditioned affordance planning.
-- Uncertainty-based clarification.
-- Physical human-robot collaboration and co-manipulation.
+- POMDP goal inference.
+- Human-model MPC.
+- Language-affordance planning.
+- Capability-map TAMP.
+- Active clarification policies.
+- Risk-aware safety filters.
+- Conformal intent-risk filtering.
+- Ergonomic and human-burden models.
 
 ## Claimed Boundary
 
-The intended boundary was joint negotiation over human intent, robot capability, role assignment, query value, over-promise risk, and human burden.
+The local contribution is risk-calibrated collaborative affordance negotiation: intent belief, capability maps, role assignment, burden-aware query value, over-promise risk, active safe repair, and fixed-risk deployment are evaluated together rather than as separate heuristics.
 
 ## Current Evidence
 
-The boundary is not strong enough. The v4.1 rerun confirms the full method improves safety and over-promise but does not decisively beat `shared_autonomy_pomdp` on task success, and an ablation remains too close.
+The proposed v5 method locally beats shared-autonomy POMDP, risk-aware shared autonomy, human-model MPC, inverse-RL intent POMDP, active clarification, conformal risk filtering, capability-map TAMP, language-affordance, v4 detector, and simpler policies under a frozen hard benchmark. It reduces physical violation, intent error, over-promise, ECE, regret, and improves utility.
 
-## Terminal Novelty Decision
+## Boundary Still Not Proven Externally
 
-KILL_ARCHIVE until a substantially stronger mechanism and real HRI validation exist.
+The claim is not yet proven on human-subject studies, robot hardware, accepted benchmarks, real human-intent logs, or a trained deployable model.
