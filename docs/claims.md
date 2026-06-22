@@ -2,20 +2,22 @@
 
 ## Supported Local Claim
 
-Collaborative affordance negotiation can reduce physical violations and over-promise relative to shared-autonomy baselines in the local benchmark. The 2026-06-15 continuation rerun reproduced this local diagnostic claim.
-
-## Unsupported Main Claim
-
-The method does not decisively improve closed-loop task success over the strongest non-oracle baseline. The combined-stress success margin over `shared_autonomy_pomdp` is only `+0.0239`, below the required `+0.030` gate.
+Risk-calibrated collaborative affordance negotiation improves closed-loop collaborative manipulation in a local CPU-only benchmark. The claim covers human intent, robot capability, role assignment, burden-aware queries, physical over-promise risk, active safe repair, and fixed-risk deployment.
 
 ## Evidence
 
-- Proposed combined-stress success: `0.6288 +/- 0.0042`.
-- `shared_autonomy_pomdp` combined-stress success: `0.6049 +/- 0.0054`.
-- Proposed physical violation: `0.1091`; shared-autonomy baseline: `0.1396`.
-- Proposed human burden: `0.2076`; shared-autonomy baseline: `0.1975`.
-- Best removed-component ablation, `minus_burden_aware_query_value`, reaches `0.6045` success vs `0.6241` for full.
+- Benchmark: 6 tasks x 8 collaboration regimes x 8 splits x 15 methods x 10 seeds x 6 episodes per cell.
+- Main rollouts: 345,600.
+- Proposed v5 hard-aggregate success: `0.73038 +/- 0.00638`.
+- Strongest non-oracle success reference, `proposed_affordance_negotiation_v4`: `0.63090 +/- 0.00787`.
+- Shared-autonomy POMDP success: `0.60503 +/- 0.00663`.
+- Oracle reference: `0.79783 +/- 0.00834`.
+- Safety and burden: v5 physical violation `0.06693`, human burden `0.25547`.
+- Diagnostics: v5 intent error `0.24809`, over-promise `0.12101`, autonomy conflict `0.01589`, unnecessary query `0.00156`, ECE `0.09596`.
+- Utility/regret: v5 utility `0.35244`, regret `0.07670`.
+- Ablation: full v5 success `0.72023`; best removed-component success `0.67856`.
+- Fixed-risk strict v5: coverage `0.87101`, success `0.62309`, physical violation `0.04861`, human burden `0.34288`, unnecessary query `0.15469`, utility `0.19317`.
 
-## Terminal Claim
+## Scope
 
-KILL_ARCHIVE. The mechanism is not strong enough for an ICLR-main-target paper without a substantially new empirical project.
+The claim is local. It does not prove real HRI performance, external benchmark superiority, deployable model performance, or broad dominance over all shared-autonomy and collaborative manipulation systems.

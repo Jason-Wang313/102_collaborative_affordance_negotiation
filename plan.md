@@ -1,7 +1,17 @@
 # Plan
 
-Paper 102 v4.1 continuation audit executed from `docs/paper102_iclr_submission_execution_plan_20260615.md`.
+Paper 102 v5 expanded-submission rebuild executed from `docs/paper102_expanded_submission_plan_20260622.md`.
 
-Terminal result: KILL_ARCHIVE.
+Terminal result: STRONG_REVISE.
 
-The idea produced useful local diagnostics, but the practical success gain over `shared_autonomy_pomdp` is still too small (`+0.0239` vs the `+0.030` gate) and a core ablation remains too close (`+0.0196`). Future work should not polish this version; it should start a substantially new empirical HRI project with real participants, robot rollouts, and stronger shared-autonomy comparisons.
+Frozen local empirical gates passed: success, physical safety, burden, intent, over-promise, conflict/query, calibration, regret, utility, pairwise, ablation, stress, and fixed-risk.
+
+Failed submission-readiness gate: scope. The artifact still lacks real human-robot validation, accepted high-fidelity benchmark evidence, external collaborative-manipulation benchmarks, calibrated human-intent logs, trained checkpoints, rollout videos, and deeper manual related-work synthesis.
+
+Next revival work:
+
+1. Evaluate the frozen method on real human-robot collaborative manipulation or accepted HRI benchmark tasks.
+2. Calibrate intent, burden, and over-promise regimes from human-subject or robot logs rather than only executable surrogate distributions.
+3. Replace the executable proxy with a trained graph/belief model and release checkpoints plus model cards.
+4. Compare against deployed shared-autonomy, human-model MPC, and risk-aware HRI systems under the same fixed protocol.
+5. Release per-episode traces, videos, and external failure audits.

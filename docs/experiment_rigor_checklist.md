@@ -1,21 +1,29 @@
 # Experiment Rigor Checklist
 
 - [x] Paper-specific collaborative-affordance benchmark.
-- [x] Multiple HRI/manipulation tasks.
-- [x] Multiple ambiguity and capability-mismatch families.
-- [x] Multiple stress splits.
-- [x] Strong baselines including shared-autonomy POMDP, uncertainty clarification, capability-map TAMP, language-affordance planning, and oracle.
-- [x] Seven seeds.
-- [x] Uncertainty intervals.
-- [x] Pairwise seed-level comparisons.
-- [x] Stress sweep.
+- [x] Six collaborative manipulation tasks.
+- [x] Eight ambiguity/capability regimes.
+- [x] Eight stress and shift splits.
+- [x] Fifteen methods including capability-only, intent-only, language-affordance, static-role, clarification, shared-autonomy POMDP, capability-map TAMP, human-model MPC, inverse-RL intent POMDP, risk-aware shared autonomy, conformal intent-risk filtering, active clarification bandit, v4 detector, v5 detector, and oracle.
+- [x] Ten independent seeds.
+- [x] 345,600 main closed-loop rollout rows.
+- [x] 115,200 ablation rollout rows.
+- [x] 288,000 stress-sweep rollout rows.
+- [x] 276,480 fixed-risk rollout rows.
+- [x] Seed uncertainty and pairwise comparisons.
+- [x] Success, physical violation, human burden, intent error, over-promise, autonomy conflict, unnecessary query, negotiation rounds, calibration, regret, and utility metrics.
 - [x] Core ablations.
+- [x] Stress sweep.
+- [x] Fixed-risk evaluation with safe-repair fallback and explicit burden/query cost.
 - [x] Failure cases.
 - [x] Generated figures and LaTeX tables.
+- [x] 27-page manuscript.
+- [x] Bright boxed citation hyperlinks.
+- [x] Downloads-only numbered PDF.
 - [x] Honest terminal gate.
-- [x] 2026-06-15 continuation rerun from source.
-- [x] v4.1 terminal audit.
-- [ ] Decisive gain over strongest baseline.
-- [ ] Ablation gate.
 - [ ] Real human-robot validation.
+- [ ] Accepted high-fidelity simulator benchmark validation.
 - [ ] External benchmark validation.
+- [ ] Calibrated human-intent and burden logs.
+- [ ] Trained checkpoint/model card.
+- [ ] Rollout videos.

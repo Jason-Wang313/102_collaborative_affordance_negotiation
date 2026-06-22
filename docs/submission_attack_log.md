@@ -4,34 +4,46 @@ Paper: 102 collaborative_affordance_negotiation
 
 ## Attack 1: No real human-robot validation
 
-Verdict: valid and fatal for submission readiness.
+Verdict: still valid. This blocks ICLR-main readiness.
 
-Action: keep as KILL_ARCHIVE.
+Action: mark STRONG_REVISE, not ready.
 
-## Attack 2: No decisive gain over shared autonomy
+## Attack 2: No external benchmark
 
-Verdict: valid. The proposed method beats `shared_autonomy_pomdp` by only `0.0239` success under combined stress in the v4.1 rerun.
+Verdict: still valid. The v5 local benchmark is large and targeted, but local evidence is not enough.
 
-Action: fail the success gate.
+Action: require external collaborative-manipulation validation before submission.
 
-## Attack 3: Negotiation may just be expensive clarification
+## Attack 3: Shared-autonomy baselines are weak
 
-Verdict: partly valid. The ablation removing burden-aware query value reaches `0.6045` success vs `0.6241` for full.
+Verdict: materially improved. v5 includes shared-autonomy POMDP, risk-aware shared autonomy, human-model MPC, inverse-RL intent POMDP, active clarification, conformal intent-risk filtering, capability-map TAMP, v4 detector, and oracle.
 
-Action: fail the ablation gate.
+Action: keep as STRONG_REVISE because baselines are stronger, but most remain executable proxies rather than deployed systems.
 
-## Attack 4: Safety gains are not enough
+## Attack 4: The method wins by burdening the human
 
-Verdict: valid. Proposed violations and over-promise are lower, but ICLR-main revival needs decisive task success and ablation evidence.
+Verdict: addressed locally. Burden, unnecessary query, negotiation rounds, and fixed-risk safe-repair cost are reported explicitly.
 
-Action: report as useful negative evidence.
+Action: keep burden and query metrics central in the manuscript.
 
-## Attack 5: Human burden is synthetic
+## Attack 5: Fixed-risk could be abstention
 
-Verdict: valid. No participant study or workload measure exists.
+Verdict: addressed locally. Fixed-risk uses a safe-repair fallback with visible burden/query cost. Strict v5 coverage is `0.87101`, not near-zero abstention.
 
-Action: do not claim HRI readiness.
+Action: report fixed-risk coverage and still list real-time HRI validation as missing.
+
+## Attack 6: Ablations may not isolate affordance negotiation
+
+Verdict: addressed locally. Removing intent belief, capability map, burden-aware query value, role negotiation, over-promise risk, calibration, or active repair reduces success or utility.
+
+Action: preserve ablation table and avoid overstating causality beyond the local benchmark.
+
+## Attack 7: Related work is incomplete
+
+Verdict: still valid.
+
+Action: require manual survey before submission.
 
 ## Terminal Action
 
-KILL_ARCHIVE. Do not submit to ICLR main.
+STRONG_REVISE. Continue only with external experiments; do not submit this version to ICLR main.

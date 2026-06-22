@@ -1,22 +1,27 @@
 # Final Audit
 
-Paper 102 v4.1 was rebuilt and re-audited as a collaborative-affordance evidence audit.
+Paper 102 v5 was rebuilt and rerun as a hostile-review collaborative-affordance evidence audit.
 
 ## Evidence Audit
 
-The 2026-06-15 rerun regenerated the full benchmark. The proposed method improves safety and over-promise relative to `shared_autonomy_pomdp`, but the success margin is only `+0.0239`, too small for the `+0.030` gate. The best removed-component ablation is also too close: `0.6045` success for `minus_burden_aware_query_value` vs `0.6241` for the full method.
+The benchmark evaluates risk-calibrated collaborative affordance negotiation across 6 tasks, 8 collaboration ambiguity regimes, 8 splits, 15 methods, 10 seeds, and 6 episodes per method/task/regime/split/seed cell. The run produced 345,600 main rollouts, 115,200 ablation rollouts, 288,000 stress rollouts, 276,480 fixed-risk rollouts, and 24 negative cases.
+
+The proposed `risk_calibrated_collaborative_affordance_v5` beats every non-oracle baseline on hard-aggregate success and utility while reducing physical violation, intent error, over-promise, conflict, calibration error, and regret relative to the strongest success reference.
 
 ## Terminal Decision
 
-KILL_ARCHIVE.
+STRONG_REVISE.
 
-The idea should not be submitted to ICLR main. It may be useful as a negative result showing that explicit negotiation must beat strong shared-autonomy baselines, not merely improve diagnostics.
+The mechanism is strong enough to keep as an ICLR-main-target research project. It is not submission-ready and must not be framed as validated HRI deployment.
 
 ## Verification Targets
 
 - Re-run: `python src\run_experiment.py`.
-- Continuation log: `C:/Users/wangz/robotics_massive_pool_paper_factory/logs/102_collaborative_affordance_negotiation_continuation_rerun_20260615.log`.
-- Main table: `results/combined_stress_table.tex`.
-- Ablation table: `results/ablation_table.tex`.
-- Pairwise table: `results/pairwise_decision_table.tex`.
+- Manuscript generator: `python scripts\generate_manuscript.py`.
+- Submission validator: `python scripts\validate_submission_artifacts.py`.
+- Main evidence: `results/metrics.csv`, `results/hard_aggregate_metrics.csv`, `results/main_seed_metrics.csv`, `results/pairwise_stats.csv`.
+- Ablation evidence: `results/ablation_metrics.csv`, `results/ablation_seed_metrics.csv`.
+- Stress evidence: `results/stress_sweep.csv`, `results/stress_sweep_seed_metrics.csv`.
+- Fixed-risk evidence: `results/fixed_risk_metrics.csv`, `results/fixed_risk_pairwise_stats.csv`.
 - PDF target: `C:/Users/wangz/Downloads/102.pdf`.
+- PDF SHA256: `C384D1E57B0C3F5C42B044027505CD847BBDFA1FD82FB513ABBCDDF0BEADC69E`.

@@ -79,3 +79,11 @@ The benchmark was implemented and run. Terminal gate result: KILL_ARCHIVE. The p
 Re-audited: 2026-06-15 15:49:54 +0100
 
 The v4.1 continuation rerun recompiled and regenerated the benchmark from source. Terminal gate result remains KILL_ARCHIVE: combined-stress success margin over `shared_autonomy_pomdp` is `+0.0239`, below the `+0.030` practical gate, and the best removed-component ablation margin is only `+0.0196`.
+
+## v5 Expanded Submission Result
+
+Executed on 2026-06-22 under `docs/paper102_expanded_submission_plan_20260622.md`.
+
+The benchmark was expanded to 6 tasks x 8 collaboration regimes x 8 splits x 15 methods x 10 seeds x 6 episodes per cell. The run produced 345,600 main rollouts, 115,200 ablation rollouts, 288,000 stress rollouts, 276,480 fixed-risk rollouts, and 24 negative cases.
+
+Terminal result changed to `STRONG_REVISE`. The new `risk_calibrated_collaborative_affordance_v5` reached hard-aggregate success `0.73038`, beating the strongest non-oracle v4 reference at `0.63090` and shared-autonomy POMDP at `0.60503`, while reducing physical violation, intent error, over-promise, calibration error, regret, and improving utility. All local empirical gates passed. The scope gate failed because there is still no real human-robot study, accepted high-fidelity benchmark, external benchmark, calibrated human-intent log, trained checkpoint, or rollout-video evidence.
